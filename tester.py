@@ -1,4 +1,6 @@
-def get_indent(line):
+import random, sys
+
+def get_indent(line:str)->int:
     indent = 0
     space_counter = 0
     for char in line:
@@ -10,7 +12,7 @@ def get_indent(line):
             break
     return indent + space_counter//4
 
-def no_print_liner(line):
+def no_print_liner(line:str)->str:
     if line.lstrip().startswith("print("):
         return line.replace("print(","")[:-2]+"\n"
     return line
@@ -116,6 +118,12 @@ def randinput_applier(generations,function,input_no, seed):
 def randinput_generator(prev_seed,input_no):
     return prev_seed
 
+def biased_random()->int:
+    mx = sys.maxsize
+    rn = 1-random.random()*2
+    return int(rn**4*mx)
+
+print(biased_random())
 filename = "inputs/sample1.py"
 hcbranch = insert_oracles(filename)
 functions = get_functions(filename)
