@@ -119,13 +119,18 @@ def randinput_generator(prev_seed,input_no):
     return prev_seed
 
 def biased_random()->int:
+    '''
+    Returns:
+        int: random integer that is likely to be close to zero.
+    '''
     mx = sys.maxsize
     rn = 1-random.random()*2
-    return int(rn**4*mx)
+    return int(rn**21*mx)
 
 print(biased_random())
 filename = "inputs/sample1.py"
 hcbranch = insert_oracles(filename)
+print(hcbranch)
 functions = get_functions(filename)
 from target import *
 
