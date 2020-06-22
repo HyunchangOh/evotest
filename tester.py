@@ -1,5 +1,5 @@
-import random, sys
 from branch import Branch
+from genetic import *
 
 def get_indent(line:str)->int:
     indent = 0
@@ -40,12 +40,14 @@ def answer_pretty_print(ans):
 def insert_oracles(filename):
     f = open(filename,'r')
     g= open("target.py",'w')
+    g.write("hctest={}\n")
+
+    #initialise
     if_counter = 0
     while_counter = 0
-    g.write("hctest={}\n")
-    # g.write("test_inputs ="+inputs+"\n")
     branch_counts = [1]
     hcbranch = dict()
+
     for line in f:
         indent = get_indent(line.rstrip())
         
@@ -76,9 +78,7 @@ def insert_oracles(filename):
             g.write(f"hctest['{br}']=False\n")
             hcbranch[br]= Branch.get_branch(br,line)
 
-
             g.write(no_print_liner(line))
-
             g.write((indent+1)*4*" ")
             g.write(f"hctest['{br}']=True\n")
 
@@ -99,34 +99,43 @@ def get_functions(filename):
             all_functions[function_name] = input_number
     return all_functions
 
-def randinput_applier(generations,function,input_no, seed):
+def randinput_applier(generations:int,function:Callable,input_no:int,hcbranch:Dict)->Dict[str,List[Tuple[int]]]:
     answer = {}
-    prev_seed = seed
+    prev_seeds = get_seed(input_no)
+
     for branch in hcbranch.keys():
         answer[branch+"T"] = []
         answer[branch+"F"] = []
+
     for j in range(generations):
-        a = randinput_generator(prev_seed, input_no)
-        globals()[function](*a)
+        globals()[function](*prev_seeds)
+        
         for branch in hcbranch.keys():
             if branch in hctest.keys():
                 if hctest[branch]:
-                    answer[branch+"T"].append(tuple(a))
+                    answer[branch+"T"].append(prev_seeds)
                 else:
-                    answer[branch+"F"].append(tuple(a))
+                    answer[branch+"F"].append(prev_seeds)
+        coverage_report = dict()
+        coverage_report[prev_seeds] = hctest
+        
+
+    for j in range(generations):
+        new_inputs = evolve(coverage_report,hcbranch)
+        coverage_report = dict()
+        for a in new_inputs:
+            globals()[function](*a)
+            print(a)
+            for branch in hcbranch.keys():
+                if branch in hctest.keys():
+                    if hctest[branch]:
+                        answer[branch+"T"].append(a)
+                    else:
+                        answer[branch+"F"].append(a)
+            coverage_report[a] = hctest
+        print(f"\n================ Generation {j} ================")
+        answer_pretty_print(answer)
     return answer
-
-def randinput_generator(prev_seed,input_no):
-    return prev_seed
-
-def biased_random()->int:
-    '''
-    Returns:
-        int: random integer that is likely to be close to zero.
-    '''
-    mx = sys.maxsize
-    rn = 1-random.random()*2
-    return int(rn**21*mx)
 
 print(biased_random())
 filename = "inputs/sample1.py"
@@ -136,5 +145,5 @@ functions = get_functions(filename)
 from target import *
 
 for function in functions.keys():
-    answer_pretty_print(randinput_applier(3,function, functions[function],[0,0,0]))
+    randinput_applier(3,function, functions[function],hcbranch)
 
