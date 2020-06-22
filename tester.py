@@ -1,4 +1,5 @@
 import random, sys
+from branch import Branch
 
 def get_indent(line:str)->int:
     indent = 0
@@ -44,7 +45,7 @@ def insert_oracles(filename):
     g.write("hctest={}\n")
     # g.write("test_inputs ="+inputs+"\n")
     branch_counts = [1]
-    hcbranch = []
+    hcbranch = dict()
     for line in f:
         indent = get_indent(line.rstrip())
         
@@ -63,7 +64,7 @@ def insert_oracles(filename):
             g.write(f"hctest['{br}']=False\n")
             g.write(no_print_liner(line))
 
-            hcbranch.append(br)
+            hcbranch[br]= Branch.get_branch(br,line)
             g.write((indent+1)*4*" ")
             g.write(f"hctest['{br}']=True\n")
 
@@ -74,7 +75,8 @@ def insert_oracles(filename):
             branch_counts[indent] = branch_counts[indent]+1
             br = branch_reducer(branch_counts,indent)
             g.write(f"hctest['{br}']=False\n")
-            hcbranch.append(br)
+            hcbranch[br]= Branch.get_branch(br,line)
+
 
             g.write(no_print_liner(line))
 
@@ -101,13 +103,13 @@ def get_functions(filename):
 def randinput_applier(generations,function,input_no, seed):
     answer = {}
     prev_seed = seed
-    for branch in hcbranch:
+    for branch in hcbranch.keys():
         answer[branch+"T"] = []
         answer[branch+"F"] = []
     for j in range(generations):
         a = randinput_generator(prev_seed, input_no)
         globals()[function](*a)
-        for branch in hcbranch:
+        for branch in hcbranch.keys():
             if branch in hctest.keys():
                 if hctest[branch]:
                     answer[branch+"T"].append(tuple(a))

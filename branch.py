@@ -1,3 +1,5 @@
+from typing import Dict
+
 class Branch:
     def __init__(self, depth:str, left_phrase: str, right_phrase: str=0, comparator:str="!="):
         self.depth = depth
@@ -15,7 +17,7 @@ class Branch:
         exec(code)
         return hcpassed, hcdistance
 
-    def get_branch(depth:str,line:str)->Branch:
+    def get_branch(depth:str,line:str):
         #if (x+y)*3>3:
         core = "".join(line.split()[1:])
         comparators = ["==",">=","<=", "!=", "<", ">"]
@@ -26,3 +28,6 @@ class Branch:
                 right = cores[1]
                 return Branch(depth,left,right,comparator)
         return Branch(depth,left)
+
+    def __str__(self):
+        return f"{self.depth}: {self.left} {self.comparator} {self.right}"
