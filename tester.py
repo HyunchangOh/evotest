@@ -59,16 +59,15 @@ def insert_oracles(filename):
             branch_counts[indent] +=1
             for i in range(indent+1,len(branch_counts),1):
                 branch_counts[i] = 0
-            g.write((indent)*4*" ")
             br = branch_reducer(branch_counts,indent)
+
+            g.write((indent)*4*" ")
             g.write(f"hctest['{br}']=False\n")
             g.write(no_print_liner(line))
 
             hcbranch[br]= Branch.get_branch(br,line)
             g.write((indent+1)*4*" ")
             g.write(f"hctest['{br}']=True\n")
-
-            # branch_counts[indent] = branch_counts[indent]+1
 
         elif line.lstrip().startswith('while'):
             g.write((indent)*4*" ")
