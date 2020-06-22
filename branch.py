@@ -4,7 +4,7 @@ class Branch:
     def __init__(self, depth:str, left_phrase: str, right_phrase: str=0, comparator:str="!="):
         self.depth = depth
         self.left = left_phrase
-        self.right = right_phrase
+        self.right = right_phrase[:-1]
         self.comparator = comparator
     
     def branch_distance(self,inputs:Dict[str,int]):
@@ -12,8 +12,12 @@ class Branch:
         for key,value in inputs.items():
             new_line = f"{key}={value}\n"
             code+=new_line
-        code += f"(hcpassed=({self.left}{self.comparator}{self.right})\n"
-        code += f"(hcdistance = {self.left})-({self.right})"
+        code += f"global hcpassed\n"
+        code += f"global hcdistance\n"
+        code += f"hcpassed=({self.left}{self.comparator}{self.right})\n"
+        code += f"hcdistance = ({self.left})-({self.right})\n"
+
+        print(code)
         exec(code)
         return hcpassed, hcdistance
 
