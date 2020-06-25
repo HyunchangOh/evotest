@@ -15,11 +15,11 @@ def approach_level(hctest:Dict,hcbranch:Dict,goal_branch: str)->int:
         if branch not in hctest.keys() or not hctest[branch]:
             return len(goal_branch.split("."))-len(branch.split(".")), hcbranch[branch]
 
-def fitness(hctest:Dict,hcbranch:Dict, inputs: Dict[str,int], goal_branch:str)->float:
+def fitness(hctest:Dict,hcbranch:Dict, inputs: Dict[str,int], goal_branch:str, all_variables)->float:
     al, blocked_branch = approach_level(hctest,hcbranch,goal_branch)
     if al == 0:
         return 10
-    branch_distance = -abs(blocked_branch.branch_distance(inputs)[1])
+    branch_distance = -abs(blocked_branch.branch_distance(all_variables)[1])
     return al+(1-1.001**(branch_distance))
 
 def get_seed(inputs:List[str])->List[int]:
@@ -39,22 +39,20 @@ def biased_random()->int:
 
 
 
-def evolve(coverage_report:Dict[Tuple[int],Dict[str,bool]],hcbranch:Dict,inputs:Dict[str,int])->List[Tuple[int]]:
+def evolve(coverage_report:Dict[Tuple[int],Dict[str,bool]],hcbranch:Dict,inputs:Dict[str,int],all_variables)->List[Tuple[int]]:
     goals = []
-    print("inputs were:  ", inputs)
     for key in hcbranch.keys():
         for i in range(len(key.split("."))**2):
             goals.append(key)
     
     deck = []
-    print(coverage_report)
+
     for input_set, hctest in coverage_report.items(): 
-        print("input_set was: ",input_set)
         input_dict = dict()
         for i in range(len(list(inputs.keys()))):
             input_dict[list(inputs.keys())[i]] = input_set[i]
-        print(input_dict)
-        f = fitness(hctest,hcbranch,input_dict,random.choice(goals))
+
+        f = fitness(hctest,hcbranch,input_dict,random.choice(goals),all_variables)
         deck += [input_set]*100*int(f)
 
     new_inputs = []
@@ -70,13 +68,11 @@ def crossover(mom:Tuple[int],dad:Tuple[int],inputs:Dict[str,int])->Tuple[int]:
     child = {}
     count =0
     for key in inputs.keys():
-        child[key]=random.choice([mom[count],dad[count]])*random.randrange(1,101,1)//100
+        '''
+            choose a random gene from mom or dad. Then mutate.
+            the random multiplication is to change the order of magnitude.
+            the random addition is to explore smaller-scale local search space.
+        '''
+        child[key]=random.choice([mom[count],dad[count]])*random.randrange(1,101,1)//100+random.randrange(-10,10,1)
         count+=1
     return child
-
-# def mutate(child:Tuple[int])->Tuple[int]:
-#     mutated_baby = []
-#     print("child was: ",child)
-#     for a in:
-#         mutated_baby.append(a*random.randrange(1,101,1)//100)
-#     return tuple(mutated_baby)

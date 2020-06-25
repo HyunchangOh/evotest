@@ -1,34 +1,27 @@
 hctest={}
-def test_me(x, y, z):
+hclocals={}
+class InfiniteLoopException(Exception):
+    pass
+def function1(a):
+
+    global hclocals
     hctest['1.1']=False
-    if y > 13:
+    if a>10:
         hctest['1.1']=True
-        "1"
-        hctest['1.1.1']=False
-        if x < 2:
-            hctest['1.1.1']=True
-            "2"
-            z = 3
-            hctest['1.1.1.1']=False
-            if x < -1:
-                hctest['1.1.1.1']=True
-                "3"
-                z = 1
+        a+=1
     else:
-        "4"
-        x = 2
-    y = 50
+        hclocals['0'] =locals()
+        return a
+
+
+    hclocals['0'] = locals()
+def function2(b):
+
+    global hclocals
     hctest['1.2']=False
-    if z == 4:
+    if b<0:
         hctest['1.2']=True
-        "5"
-        z = 1
-    else:
-        "6"
-        hctest['1.2.1']=False
-        while x < 5:
-            hctest['1.2.1']=True
-            "7"
-            x += 1
-            z = z + 1
-    y = 0
+        b-=1
+    hclocals['0'] =locals()
+    return b
+    hclocals['0'] = locals()

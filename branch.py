@@ -10,6 +10,8 @@ class Branch:
     def branch_distance(self,inputs:Dict[str,int]):
         code = ""
         for key,value in inputs.items():
+            if key in ["hcbranch","branch","hcbranch","hcdistance","answer","coverage_report","new_inputs","all_variables","function","generations","prev_seeds","store_format","input_no"]:
+                continue
             new_line = f"{key}={value}\n"
             code+=new_line
         code += f"global hcpassed\n"
@@ -17,9 +19,9 @@ class Branch:
         code += f"hcpassed=({self.left}{self.comparator}{self.right})\n"
         code += f"hcdistance = ({self.left})-({self.right})\n"
 
-        print(code)
         exec(code)
         return hcpassed, hcdistance
+
 
     def get_branch(depth:str,line:str):
         #if (x+y)*3>3:
